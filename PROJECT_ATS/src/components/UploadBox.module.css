@@ -1,0 +1,99 @@
+.container {
+  width: 100%;
+}
+
+.dropZone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 3rem 2rem;
+  text-align: center;
+  background: rgba(255,255,255,0.5);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropZone.dragging {
+  border-color: var(--primary-orange);
+  background: rgba(255, 122, 0, 0.05);
+}
+
+.dropZone.hasFile {
+  border-style: solid;
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.iconWrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--box-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.prompt h3 {
+  margin: 0 0 0.5rem;
+  color: var(--text-dark);
+}
+
+.prompt p {
+  color: var(--text-gray);
+  margin: 0.5rem 0;
+}
+
+.browseBtn {
+  display: inline-block;
+  background: var(--primary-orange);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 1rem 0;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(255, 122, 0, 0.2);
+}
+
+.browseBtn:hover {
+  background: var(--primary-orange-hover);
+  transform: translateY(-2px);
+}
+
+.fileInput {
+  display: none;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--text-light) !important;
+}
+
+.fileInfo h4 {
+  margin: 0 0 0.5rem;
+  color: var(--text-dark);
+}
+
+.fileInfo p {
+  color: var(--text-gray);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.btnPrimary {
+  background: var(--primary-orange);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btnPrimary:hover {
+  background: var(--primary-orange-hover);
+}

@@ -1,0 +1,9 @@
+backend/jdk17/
+jdk17/
+node_modules/
+target/
+backend/target/
+backend/uploads/
+uploads/
+*.log
+*.pdf

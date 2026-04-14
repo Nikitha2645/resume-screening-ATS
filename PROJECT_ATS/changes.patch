@@ -1,0 +1,1200 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/package.json b/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..66bdf7ac07e9dd386e49302b5176b086ebf0aa15
+--- /dev/null
++++ b/package.json
+@@ -0,0 +1,31 @@
++{
++  "name": "resume-screening-frontend",
++  "version": "1.0.0",
++  "private": true,
++  "dependencies": {
++    "react": "^18.3.1",
++    "react-dom": "^18.3.1",
++    "react-router-dom": "^6.30.1"
++  },
++  "scripts": {
++    "start": "react-scripts start",
++    "build": "react-scripts build",
++    "test": "react-scripts test",
++    "eject": "react-scripts eject"
++  },
++  "devDependencies": {
++    "react-scripts": "5.0.1"
++  },
++  "browserslist": {
++    "production": [
++      ">0.2%",
++      "not dead",
++      "not op_mini all"
++    ],
++    "development": [
++      "last 1 chrome version",
++      "last 1 firefox version",
++      "last 1 safari version"
++    ]
++  }
++}
+diff --git a/public/index.html b/public/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..71491470837d6ec31379c678a904e18bb41a95f2
+--- /dev/null
++++ b/public/index.html
+@@ -0,0 +1,14 @@
++<!DOCTYPE html>
++<html lang="en">
++  <head>
++    <meta charset="utf-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1" />
++    <meta name="theme-color" content="#f4f7fb" />
++    <meta name="description" content="Resume Screening ATS frontend dashboard" />
++    <title>Resume Screening ATS</title>
++  </head>
++  <body>
++    <noscript>You need to enable JavaScript to run this app.</noscript>
++    <div id="root"></div>
++  </body>
++</html>
+diff --git a/src/App.js b/src/App.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..1abd331ab32dd595386b335cde100d8e4069b5e8
+--- /dev/null
++++ b/src/App.js
+@@ -0,0 +1,55 @@
++import React from 'react';
++import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
++import Navbar from './components/Navbar';
++import Sidebar from './components/Sidebar';
++import LoginPage from './pages/LoginPage';
++import JobSeekerDashboard from './pages/JobSeekerDashboard';
++import RecruiterDashboard from './pages/RecruiterDashboard';
++import AdminDashboard from './pages/AdminDashboard';
++import { navItems } from './data/mockData';
++import './styles/global.css';
++
++const DashboardLayout = ({ role, heading, userName, children }) => (
++  <div className="app-shell">
++    <Sidebar title={`${role} Panel`} items={navItems[role]} />
++    <div className="main-panel">
++      <Navbar heading={heading} userName={userName} />
++      <div className="content-area">{children}</div>
++    </div>
++  </div>
++);
++
++const App = () => (
++  <BrowserRouter>
++    <Routes>
++      <Route path="/" element={<LoginPage />} />
++      <Route
++        path="/job-seeker"
++        element={(
++          <DashboardLayout role="seeker" heading="Job Seeker Dashboard" userName="Rahul">
++            <JobSeekerDashboard />
++          </DashboardLayout>
++        )}
++      />
++      <Route
++        path="/recruiter"
++        element={(
++          <DashboardLayout role="recruiter" heading="Recruiter Dashboard" userName="Nikita">
++            <RecruiterDashboard />
++          </DashboardLayout>
++        )}
++      />
++      <Route
++        path="/admin"
++        element={(
++          <DashboardLayout role="admin" heading="Admin Dashboard" userName="System Admin">
++            <AdminDashboard />
++          </DashboardLayout>
++        )}
++      />
++      <Route path="*" element={<Navigate to="/" replace />} />
++    </Routes>
++  </BrowserRouter>
++);
++
++export default App;
+diff --git a/src/components/ATSScoreCircle.js b/src/components/ATSScoreCircle.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..5c72e46ed379f2f0f24cb4fa979b0b16c6a2417d
+--- /dev/null
++++ b/src/components/ATSScoreCircle.js
+@@ -0,0 +1,21 @@
++import React from 'react';
++
++const ATSScoreCircle = ({ score }) => {
++  const degree = Math.round((score / 100) * 360);
++
++  return (
++    <div
++      className="score-circle"
++      style={{
++        background: `conic-gradient(#4f7dff ${degree}deg, #e7ecff ${degree}deg)`
++      }}
++    >
++      <div className="score-inner">
++        <h3>{score}%</h3>
++        <span>ATS Score</span>
++      </div>
++    </div>
++  );
++};
++
++export default ATSScoreCircle;
+diff --git a/src/components/AnalyticsChart.js b/src/components/AnalyticsChart.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..f7f71594e246447d8515f6a7f914bb3a69e4d340
+--- /dev/null
++++ b/src/components/AnalyticsChart.js
+@@ -0,0 +1,18 @@
++import React from 'react';
++
++const AnalyticsChart = () => (
++  <section className="card">
++    <h3>Analytics Overview</h3>
++    <div className="chart-placeholder">
++      <div style={{ height: '65%' }} />
++      <div style={{ height: '48%' }} />
++      <div style={{ height: '78%' }} />
++      <div style={{ height: '58%' }} />
++      <div style={{ height: '86%' }} />
++      <div style={{ height: '71%' }} />
++    </div>
++    <p className="muted">Dummy chart placeholder for ATS trends, applications, and hiring funnel insights.</p>
++  </section>
++);
++
++export default AnalyticsChart;
+diff --git a/src/components/CandidateCard.js b/src/components/CandidateCard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..259f16069f2d40124835335150d9f67304a4c05a
+--- /dev/null
++++ b/src/components/CandidateCard.js
+@@ -0,0 +1,19 @@
++import React from 'react';
++
++const CandidateCard = ({ candidate }) => (
++  <article className="candidate-card">
++    <h3>{candidate.name}</h3>
++    <p>{candidate.email}</p>
++    <div className="candidate-metrics">
++      <span>ATS: {candidate.atsScore}%</span>
++      <span>Skills Match: {candidate.skillsMatch}%</span>
++    </div>
++    <div className="candidate-actions">
++      <button type="button" className="outline-btn">Resume Link</button>
++      <button type="button" className="success-btn">Shortlist</button>
++      <button type="button" className="danger-btn">Reject</button>
++    </div>
++  </article>
++);
++
++export default CandidateCard;
+diff --git a/src/components/JobCard.js b/src/components/JobCard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..80238e91585e77b579310e2a02733307d893b055
+--- /dev/null
++++ b/src/components/JobCard.js
+@@ -0,0 +1,16 @@
++import React from 'react';
++
++const JobCard = ({ job }) => (
++  <article className="job-card card">
++    <h3>{job.title}</h3>
++    <p>{job.company}</p>
++    <div className="job-meta">
++      <span>{job.location}</span>
++      <span>{job.type}</span>
++      <span>{job.applications} applications</span>
++      <strong className={job.status === 'Open' ? 'status-open' : 'status-closed'}>{job.status}</strong>
++    </div>
++  </article>
++);
++
++export default JobCard;
+diff --git a/src/components/Navbar.js b/src/components/Navbar.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..eac3b993573f5bb7b391e4d7e277fcf7f50b41ce
+--- /dev/null
++++ b/src/components/Navbar.js
+@@ -0,0 +1,13 @@
++import React from 'react';
++
++const Navbar = ({ heading, userName }) => (
++  <header className="topbar">
++    <div>
++      <h1>{heading}</h1>
++      <p>Welcome back, {userName}</p>
++    </div>
++    <button type="button" className="outline-btn">Notifications</button>
++  </header>
++);
++
++export default Navbar;
+diff --git a/src/components/ResumeUploadCard.js b/src/components/ResumeUploadCard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..d5a86ca5749921202d170eff0e1d20fed1d240a6
+--- /dev/null
++++ b/src/components/ResumeUploadCard.js
+@@ -0,0 +1,13 @@
++import React from 'react';
++
++const ResumeUploadCard = () => (
++  <section className="card upload-card">
++    <h3>Resume Upload</h3>
++    <p>Upload your latest resume (PDF/DOCX) to get ATS analysis and skill match insights.</p>
++    <label htmlFor="resume" className="file-label">Choose Resume</label>
++    <input id="resume" type="file" />
++    <button type="button" className="primary-btn">Analyze Resume</button>
++  </section>
++);
++
++export default ResumeUploadCard;
+diff --git a/src/components/Sidebar.js b/src/components/Sidebar.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee0d567f15efae8153bec65ed2d8f65dcd881351
+--- /dev/null
++++ b/src/components/Sidebar.js
+@@ -0,0 +1,22 @@
++import React from 'react';
++import { NavLink } from 'react-router-dom';
++
++const Sidebar = ({ title, items }) => (
++  <aside className="sidebar">
++    <div className="brand">ATS Pro</div>
++    <p className="sidebar-title">{title}</p>
++    <nav>
++      {items.map((item) => (
++        <NavLink
++          key={item.label}
++          to={item.path}
++          className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
++        >
++          {item.label}
++        </NavLink>
++      ))}
++    </nav>
++  </aside>
++);
++
++export default Sidebar;
+diff --git a/src/components/SkillTags.js b/src/components/SkillTags.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..060d204676c40d53732a8802bc2c08cac4db71ee
+--- /dev/null
++++ b/src/components/SkillTags.js
+@@ -0,0 +1,16 @@
++import React from 'react';
++
++const SkillTags = ({ title, skills, type = 'matched' }) => (
++  <section className="card">
++    <h3>{title}</h3>
++    <div className="tags-wrap">
++      {skills.map((skill) => (
++        <span key={skill} className={`tag ${type === 'matched' ? 'matched' : 'missing'}`}>
++          {skill}
++        </span>
++      ))}
++    </div>
++  </section>
++);
++
++export default SkillTags;
+diff --git a/src/components/StatCard.js b/src/components/StatCard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..031e6aab0a7f5a26a0257866397cda50400aff1c
+--- /dev/null
++++ b/src/components/StatCard.js
+@@ -0,0 +1,10 @@
++import React from 'react';
++
++const StatCard = ({ label, value }) => (
++  <article className="stat-card">
++    <p>{label}</p>
++    <h3>{value.toLocaleString()}</h3>
++  </article>
++);
++
++export default StatCard;
+diff --git a/src/data/mockData.js b/src/data/mockData.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..484419591929b6cf1c48cfa8481d42d3482ebfc5
+--- /dev/null
++++ b/src/data/mockData.js
+@@ -0,0 +1,123 @@
++export const navItems = {
++  seeker: [
++    { label: 'Dashboard', path: '/job-seeker' },
++    { label: 'My Applications', path: '/job-seeker' },
++    { label: 'Resume Insights', path: '/job-seeker' }
++  ],
++  recruiter: [
++    { label: 'Dashboard', path: '/recruiter' },
++    { label: 'Posted Jobs', path: '/recruiter' },
++    { label: 'Candidates', path: '/recruiter' }
++  ],
++  admin: [
++    { label: 'Dashboard', path: '/admin' },
++    { label: 'User Management', path: '/admin' },
++    { label: 'Job Approvals', path: '/admin' }
++  ]
++};
++
++export const jobs = [
++  {
++    id: 'JOB-101',
++    title: 'Frontend Developer',
++    company: 'Nova Talent Labs',
++    location: 'Bangalore, India',
++    type: 'Full-time',
++    applications: 42,
++    status: 'Open'
++  },
++  {
++    id: 'JOB-102',
++    title: 'React Engineer Intern',
++    company: 'HireBridge',
++    location: 'Remote',
++    type: 'Internship',
++    applications: 68,
++    status: 'Open'
++  },
++  {
++    id: 'JOB-103',
++    title: 'UI Engineer',
++    company: 'SkillSync',
++    location: 'Pune, India',
++    type: 'Full-time',
++    applications: 23,
++    status: 'Closed'
++  }
++];
++
++export const candidates = [
++  {
++    id: 'C-1',
++    name: 'Aarav Mehta',
++    email: 'aarav.mehta@email.com',
++    atsScore: 91,
++    skillsMatch: 88,
++    skills: ['React', 'JavaScript', 'CSS', 'REST APIs'],
++    resumeLink: '#',
++    status: 'Shortlisted'
++  },
++  {
++    id: 'C-2',
++    name: 'Diya Sharma',
++    email: 'diya.sharma@email.com',
++    atsScore: 84,
++    skillsMatch: 80,
++    skills: ['React', 'TypeScript', 'Node.js'],
++    resumeLink: '#',
++    status: 'Under Review'
++  },
++  {
++    id: 'C-3',
++    name: 'Rohan Nair',
++    email: 'rohan.nair@email.com',
++    atsScore: 73,
++    skillsMatch: 70,
++    skills: ['HTML', 'CSS', 'Figma'],
++    resumeLink: '#',
++    status: 'Rejected'
++  }
++];
++
++export const seekerProfile = {
++  name: 'Rahul Verma',
++  email: 'rahul.verma@email.com',
++  atsScore: 82,
++  matchedSkills: ['React', 'JavaScript', 'Git', 'Team Collaboration'],
++  missingSkills: ['TypeScript', 'System Design', 'Testing'],
++  recommendations: [
++    'Add 2 quantified project achievements.',
++    'Include TypeScript + Jest in projects section.',
++    'Highlight internship outcomes with metrics.'
++  ],
++  resumeHistory: [
++    { id: 'R-1001', date: '2026-03-30', ats: 76, role: 'Frontend Intern' },
++    { id: 'R-1002', date: '2026-04-03', ats: 79, role: 'UI Developer' },
++    { id: 'R-1003', date: '2026-04-07', ats: 82, role: 'React Developer' }
++  ],
++  appliedJobs: [
++    { id: 'A-201', role: 'Frontend Developer', company: 'Nova Talent Labs', status: 'Interview' },
++    { id: 'A-202', role: 'UI Engineer', company: 'SkillSync', status: 'Under Review' },
++    { id: 'A-203', role: 'React Intern', company: 'HireBridge', status: 'Applied' }
++  ]
++};
++
++export const adminStats = {
++  totalUsers: 3240,
++  totalRecruiters: 216,
++  totalJobSeekers: 3024,
++  totalJobs: 428,
++  totalResumesUploaded: 5120
++};
++
++export const userManagement = [
++  { id: 'U-11', name: 'Nikita Rao', role: 'Recruiter', status: 'Active' },
++  { id: 'U-12', name: 'Karan Iyer', role: 'Job Seeker', status: 'Active' },
++  { id: 'U-13', name: 'Mehul Shah', role: 'Recruiter', status: 'Blocked' }
++];
++
++export const jobApprovalQueue = [
++  { id: 'JQ-1', title: 'Frontend Lead', company: 'CodeAxis', status: 'Pending' },
++  { id: 'JQ-2', title: 'React Intern', company: 'DevNest', status: 'Pending' },
++  { id: 'JQ-3', title: 'UI Engineer', company: 'PeopleWave', status: 'Approved' }
++];
+diff --git a/src/index.js b/src/index.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..0048a4ae6f754854efddc3c6342396b86f9821b7
+--- /dev/null
++++ b/src/index.js
+@@ -0,0 +1,10 @@
++import React from 'react';
++import { createRoot } from 'react-dom/client';
++import App from './App';
++
++const root = createRoot(document.getElementById('root'));
++root.render(
++  <React.StrictMode>
++    <App />
++  </React.StrictMode>
++);
+diff --git a/src/pages/AdminDashboard.js b/src/pages/AdminDashboard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..ef97f1726feed70ac480c6abcf83839028de3621
+--- /dev/null
++++ b/src/pages/AdminDashboard.js
+@@ -0,0 +1,75 @@
++import React from 'react';
++import AnalyticsChart from '../components/AnalyticsChart';
++import StatCard from '../components/StatCard';
++import { adminStats, jobApprovalQueue, userManagement } from '../data/mockData';
++
++const AdminDashboard = () => (
++  <div className="dashboard-grid">
++    <section className="stats-grid span-2">
++      <StatCard label="Total Users" value={adminStats.totalUsers} />
++      <StatCard label="Total Recruiters" value={adminStats.totalRecruiters} />
++      <StatCard label="Total Job Seekers" value={adminStats.totalJobSeekers} />
++      <StatCard label="Total Jobs" value={adminStats.totalJobs} />
++      <StatCard label="Total Resumes Uploaded" value={adminStats.totalResumesUploaded} />
++    </section>
++
++    <section className="span-2">
++      <AnalyticsChart />
++    </section>
++
++    <section className="card span-2">
++      <h3>User Management</h3>
++      <table className="table">
++        <thead>
++          <tr>
++            <th>User ID</th>
++            <th>Name</th>
++            <th>Role</th>
++            <th>Status</th>
++          </tr>
++        </thead>
++        <tbody>
++          {userManagement.map((user) => (
++            <tr key={user.id}>
++              <td>{user.id}</td>
++              <td>{user.name}</td>
++              <td>{user.role}</td>
++              <td>{user.status}</td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++    </section>
++
++    <section className="card span-2">
++      <h3>Job Approval Queue</h3>
++      <table className="table">
++        <thead>
++          <tr>
++            <th>Job ID</th>
++            <th>Title</th>
++            <th>Company</th>
++            <th>Status</th>
++            <th>Action</th>
++          </tr>
++        </thead>
++        <tbody>
++          {jobApprovalQueue.map((job) => (
++            <tr key={job.id}>
++              <td>{job.id}</td>
++              <td>{job.title}</td>
++              <td>{job.company}</td>
++              <td>{job.status}</td>
++              <td className="table-actions">
++                <button type="button" className="success-btn">Approve</button>
++                <button type="button" className="danger-btn">Reject</button>
++              </td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++    </section>
++  </div>
++);
++
++export default AdminDashboard;
+diff --git a/src/pages/JobSeekerDashboard.js b/src/pages/JobSeekerDashboard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..09e2005e67fd56aa38081cd4ec22e415f9b2fabb
+--- /dev/null
++++ b/src/pages/JobSeekerDashboard.js
+@@ -0,0 +1,78 @@
++import React from 'react';
++import ATSScoreCircle from '../components/ATSScoreCircle';
++import ResumeUploadCard from '../components/ResumeUploadCard';
++import SkillTags from '../components/SkillTags';
++import { seekerProfile } from '../data/mockData';
++
++const JobSeekerDashboard = () => (
++  <div className="dashboard-grid">
++    <ResumeUploadCard />
++
++    <section className="card score-card">
++      <h3>Current ATS Performance</h3>
++      <ATSScoreCircle score={seekerProfile.atsScore} />
++    </section>
++
++    <SkillTags title="Matched Skills" skills={seekerProfile.matchedSkills} type="matched" />
++    <SkillTags title="Missing Skills" skills={seekerProfile.missingSkills} type="missing" />
++
++    <section className="card">
++      <h3>Recommendations</h3>
++      <ul className="clean-list">
++        {seekerProfile.recommendations.map((item) => (
++          <li key={item}>{item}</li>
++        ))}
++      </ul>
++    </section>
++
++    <section className="card span-2">
++      <h3>Previous Resume Analysis</h3>
++      <table className="table">
++        <thead>
++          <tr>
++            <th>ID</th>
++            <th>Date</th>
++            <th>Role</th>
++            <th>ATS Score</th>
++          </tr>
++        </thead>
++        <tbody>
++          {seekerProfile.resumeHistory.map((record) => (
++            <tr key={record.id}>
++              <td>{record.id}</td>
++              <td>{record.date}</td>
++              <td>{record.role}</td>
++              <td>{record.ats}%</td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++    </section>
++
++    <section className="card span-2">
++      <h3>Applied Jobs</h3>
++      <table className="table">
++        <thead>
++          <tr>
++            <th>Application ID</th>
++            <th>Role</th>
++            <th>Company</th>
++            <th>Status</th>
++          </tr>
++        </thead>
++        <tbody>
++          {seekerProfile.appliedJobs.map((job) => (
++            <tr key={job.id}>
++              <td>{job.id}</td>
++              <td>{job.role}</td>
++              <td>{job.company}</td>
++              <td>{job.status}</td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++    </section>
++  </div>
++);
++
++export default JobSeekerDashboard;
+diff --git a/src/pages/LoginPage.js b/src/pages/LoginPage.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..7cfcf7bfba06e19f792eaf86182296172b8a9dbe
+--- /dev/null
++++ b/src/pages/LoginPage.js
+@@ -0,0 +1,29 @@
++import React from 'react';
++import { useNavigate } from 'react-router-dom';
++
++const LoginPage = () => {
++  const navigate = useNavigate();
++
++  const handleSubmit = (event) => {
++    event.preventDefault();
++    navigate('/job-seeker');
++  };
++
++  return (
++    <main className="login-shell">
++      <section className="login-card">
++        <h1>Resume Screening ATS</h1>
++        <p>Sign in to continue to your dashboard</p>
++        <form onSubmit={handleSubmit}>
++          <label htmlFor="email">Email</label>
++          <input id="email" type="email" placeholder="you@company.com" required />
++          <label htmlFor="password">Password</label>
++          <input id="password" type="password" placeholder="••••••••" required />
++          <button type="submit" className="primary-btn">Login</button>
++        </form>
++      </section>
++    </main>
++  );
++};
++
++export default LoginPage;
+diff --git a/src/pages/RecruiterDashboard.js b/src/pages/RecruiterDashboard.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..0d7eac6aed8361de5f13e57833a74e91eee8f0fd
+--- /dev/null
++++ b/src/pages/RecruiterDashboard.js
+@@ -0,0 +1,72 @@
++import React from 'react';
++import CandidateCard from '../components/CandidateCard';
++import JobCard from '../components/JobCard';
++import { candidates, jobs } from '../data/mockData';
++
++const RecruiterDashboard = () => {
++  const rankedCandidates = [...candidates].sort((a, b) => b.atsScore - a.atsScore);
++
++  return (
++    <div className="dashboard-grid">
++      <section className="card span-2">
++        <h3>Post New Job</h3>
++        <form className="job-form">
++          <input type="text" placeholder="Job title" />
++          <input type="text" placeholder="Company" />
++          <input type="text" placeholder="Location" />
++          <select>
++            <option>Full-time</option>
++            <option>Internship</option>
++            <option>Contract</option>
++          </select>
++          <textarea rows="3" placeholder="Job description" />
++          <button type="button" className="primary-btn">Publish Job</button>
++        </form>
++      </section>
++
++      <section className="card span-2">
++        <h3>Posted Jobs</h3>
++        <div className="card-list">
++          {jobs.map((job) => (
++            <JobCard key={job.id} job={job} />
++          ))}
++        </div>
++      </section>
++
++      <section className="card span-2">
++        <h3>Candidate Applications</h3>
++        <table className="table">
++          <thead>
++            <tr>
++              <th>Name</th>
++              <th>Email</th>
++              <th>ATS</th>
++              <th>Status</th>
++            </tr>
++          </thead>
++          <tbody>
++            {candidates.map((candidate) => (
++              <tr key={candidate.id}>
++                <td>{candidate.name}</td>
++                <td>{candidate.email}</td>
++                <td>{candidate.atsScore}%</td>
++                <td>{candidate.status}</td>
++              </tr>
++            ))}
++          </tbody>
++        </table>
++      </section>
++
++      <section className="card span-2">
++        <h3>Ranked Candidates</h3>
++        <div className="card-list candidates-grid">
++          {rankedCandidates.map((candidate) => (
++            <CandidateCard key={candidate.id} candidate={candidate} />
++          ))}
++        </div>
++      </section>
++    </div>
++  );
++};
++
++export default RecruiterDashboard;
+diff --git a/src/styles/global.css b/src/styles/global.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..ddf3081d26c9c8e7f35ca275c53db5d1823b0d60
+--- /dev/null
++++ b/src/styles/global.css
+@@ -0,0 +1,447 @@
++:root {
++  --bg: #f5f8ff;
++  --surface: #ffffff;
++  --primary: #4f7dff;
++  --text: #1f2a44;
++  --muted: #6f7a94;
++  --success: #2ba86a;
++  --danger: #df5b5b;
++  --shadow: 0 10px 30px rgba(31, 42, 68, 0.08);
++  --radius: 16px;
++}
++
++* {
++  box-sizing: border-box;
++}
++
++body {
++  margin: 0;
++  font-family: Inter, Segoe UI, Roboto, sans-serif;
++  background: linear-gradient(120deg, #f7f9ff 0%, #eef4ff 50%, #f7f9ff 100%);
++  color: var(--text);
++}
++
++.login-shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 24px;
++}
++
++.login-card {
++  width: min(430px, 100%);
++  background: var(--surface);
++  border-radius: 24px;
++  box-shadow: var(--shadow);
++  padding: 32px;
++}
++
++.login-card h1 {
++  margin: 0 0 8px;
++}
++
++.login-card p {
++  color: var(--muted);
++  margin-bottom: 24px;
++}
++
++form {
++  display: grid;
++  gap: 10px;
++}
++
++input,
++textarea,
++select {
++  width: 100%;
++  border: 1px solid #dbe2f2;
++  border-radius: 10px;
++  padding: 11px 12px;
++  font: inherit;
++  background: #fff;
++}
++
++input:focus,
++textarea:focus,
++select:focus {
++  border-color: var(--primary);
++  outline: none;
++}
++
++.primary-btn,
++.outline-btn,
++.success-btn,
++.danger-btn {
++  border: none;
++  border-radius: 10px;
++  padding: 10px 14px;
++  font-weight: 600;
++  cursor: pointer;
++  transition: all 0.25s ease;
++}
++
++.primary-btn {
++  background: var(--primary);
++  color: #fff;
++}
++
++.primary-btn:hover {
++  transform: translateY(-1px);
++  box-shadow: 0 8px 20px rgba(79, 125, 255, 0.25);
++}
++
++.outline-btn {
++  border: 1px solid #d0d9ec;
++  background: #fff;
++  color: var(--text);
++}
++
++.success-btn {
++  background: #e8f7ef;
++  color: #1d8f57;
++}
++
++.danger-btn {
++  background: #ffefef;
++  color: #c73b3b;
++}
++
++.app-shell {
++  display: grid;
++  grid-template-columns: 250px 1fr;
++  min-height: 100vh;
++}
++
++.sidebar {
++  background: #fff;
++  padding: 24px 16px;
++  border-right: 1px solid #edf1fb;
++}
++
++.brand {
++  font-size: 1.2rem;
++  font-weight: 700;
++  margin-bottom: 24px;
++}
++
++.sidebar-title {
++  color: var(--muted);
++  font-size: 0.85rem;
++  text-transform: uppercase;
++  letter-spacing: 0.05em;
++}
++
++.sidebar-link {
++  display: block;
++  text-decoration: none;
++  color: #405173;
++  padding: 10px 12px;
++  margin: 8px 0;
++  border-radius: 10px;
++}
++
++.sidebar-link:hover,
++.sidebar-link.active {
++  background: #edf2ff;
++  color: #2443a5;
++}
++
++.main-panel {
++  padding: 20px;
++}
++
++.topbar {
++  display: flex;
++  justify-content: space-between;
++  align-items: center;
++  background: #fff;
++  border-radius: var(--radius);
++  box-shadow: var(--shadow);
++  padding: 18px 22px;
++}
++
++.topbar h1 {
++  margin: 0;
++  font-size: 1.4rem;
++}
++
++.topbar p {
++  margin: 6px 0 0;
++  color: var(--muted);
++}
++
++.content-area {
++  margin-top: 18px;
++}
++
++.dashboard-grid {
++  display: grid;
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  gap: 16px;
++}
++
++.card {
++  background: #fff;
++  border-radius: var(--radius);
++  padding: 18px;
++  box-shadow: var(--shadow);
++}
++
++.card:hover,
++.stat-card:hover,
++.candidate-card:hover {
++  transform: translateY(-2px);
++}
++
++.score-card {
++  display: grid;
++  place-items: center;
++}
++
++.score-circle {
++  width: 140px;
++  height: 140px;
++  border-radius: 50%;
++  display: grid;
++  place-items: center;
++}
++
++.score-inner {
++  width: 112px;
++  height: 112px;
++  border-radius: 50%;
++  background: #fff;
++  display: grid;
++  place-items: center;
++  box-shadow: inset 0 0 0 1px #eef2ff;
++}
++
++.score-inner h3 {
++  margin: 0;
++  font-size: 1.6rem;
++}
++
++.score-inner span {
++  color: var(--muted);
++  font-size: 0.8rem;
++}
++
++.tags-wrap {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 8px;
++}
++
++.tag {
++  padding: 7px 10px;
++  border-radius: 999px;
++  font-size: 0.85rem;
++}
++
++.tag.matched {
++  background: #e8f7ef;
++  color: #1d8f57;
++}
++
++.tag.missing {
++  background: #ffecec;
++  color: #c23f3f;
++}
++
++.clean-list {
++  margin: 0;
++  padding-left: 18px;
++  color: #405173;
++  display: grid;
++  gap: 8px;
++}
++
++.table {
++  width: 100%;
++  border-collapse: collapse;
++}
++
++.table th,
++.table td {
++  border-bottom: 1px solid #eef2fa;
++  text-align: left;
++  padding: 10px 8px;
++  font-size: 0.9rem;
++}
++
++.table th {
++  color: var(--muted);
++  font-weight: 600;
++}
++
++.span-2 {
++  grid-column: span 2;
++}
++
++.stats-grid {
++  display: grid;
++  grid-template-columns: repeat(5, minmax(0, 1fr));
++  gap: 12px;
++}
++
++.stat-card {
++  background: #fff;
++  border-radius: 14px;
++  padding: 16px;
++  box-shadow: var(--shadow);
++}
++
++.stat-card p {
++  margin: 0;
++  color: var(--muted);
++}
++
++.stat-card h3 {
++  margin: 8px 0 0;
++}
++
++.chart-placeholder {
++  margin-top: 14px;
++  height: 190px;
++  display: flex;
++  gap: 8px;
++  align-items: end;
++}
++
++.chart-placeholder div {
++  flex: 1;
++  border-radius: 8px 8px 0 0;
++  background: linear-gradient(180deg, #6a90ff, #b7c8ff);
++}
++
++.muted {
++  color: var(--muted);
++}
++
++.card-list {
++  display: grid;
++  gap: 10px;
++}
++
++.job-meta {
++  margin-top: 8px;
++  display: flex;
++  gap: 12px;
++  flex-wrap: wrap;
++  color: #526183;
++  font-size: 0.9rem;
++}
++
++.status-open {
++  color: var(--success);
++}
++
++.status-closed {
++  color: var(--danger);
++}
++
++.candidates-grid {
++  grid-template-columns: repeat(3, minmax(0, 1fr));
++}
++
++.candidate-card {
++  background: #fff;
++  border: 1px solid #edf1fb;
++  border-radius: 14px;
++  padding: 14px;
++}
++
++.candidate-card h3,
++.candidate-card p {
++  margin: 0;
++}
++
++.candidate-card p {
++  color: var(--muted);
++  margin-top: 4px;
++}
++
++.candidate-metrics {
++  margin-top: 10px;
++  display: flex;
++  justify-content: space-between;
++  font-size: 0.88rem;
++}
++
++.candidate-actions {
++  display: flex;
++  gap: 8px;
++  margin-top: 12px;
++  flex-wrap: wrap;
++}
++
++.upload-card input[type='file'] {
++  display: none;
++}
++
++.file-label {
++  display: inline-block;
++  border: 1px dashed #bfd0f8;
++  color: #3d5fbf;
++  border-radius: 10px;
++  padding: 10px;
++  text-align: center;
++  margin: 8px 0 12px;
++  cursor: pointer;
++}
++
++.job-form {
++  display: grid;
++  gap: 10px;
++  grid-template-columns: 1fr 1fr;
++}
++
++.job-form textarea,
++.job-form button {
++  grid-column: span 2;
++}
++
++.table-actions {
++  display: flex;
++  gap: 8px;
++}
++
++@media (max-width: 1200px) {
++  .stats-grid {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
++  .candidates-grid {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++}
++
++@media (max-width: 900px) {
++  .app-shell {
++    grid-template-columns: 1fr;
++  }
++
++  .sidebar {
++    border-right: none;
++    border-bottom: 1px solid #edf1fb;
++  }
++
++  .dashboard-grid,
++  .stats-grid,
++  .candidates-grid {
++    grid-template-columns: 1fr;
++  }
++
++  .span-2 {
++    grid-column: span 1;
++  }
++
++  .job-form {
++    grid-template-columns: 1fr;
++  }
++
++  .job-form textarea,
++  .job-form button {
++    grid-column: span 1;
++  }
++}
+ 
+EOF
+)
